@@ -11,7 +11,7 @@ const PROJECTS = [
   {
     name: 'Aqar Syria',
     repo: 'Real-Estate',
-    demo: null,
+    demo: 'demos/aqar/index.html',
     caseStudy: 'aqar',
     sub: 'Smart Real-Estate SaaS',
     badge: 'Flagship · SaaS',

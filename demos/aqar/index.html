@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>عقار سوريا — منصة عقارية ذكية | Aqar Syria</title>
+  <meta name="description" content="Aqar Syria — smart real-estate SaaS demo: intelligent matching, market analytics, and automated Arabic contracts." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏘️</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      fontFamily: { sans: ['Cairo', 'sans-serif'] },
+      colors: { brand: { DEFAULT: '#10b981', dark: '#059669', deep: '#064e3b' }, ink: '#0b1120' },
+    }}}
+  </script>
+  <style>
+    body { font-family: 'Cairo', sans-serif; background: #0b1120; color: #e6edf3; }
+    .glass { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(10px); }
+    .grad-text { background: linear-gradient(120deg,#34d399,#10b981,#22d3ee); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .leaflet-container { background: #0f1629; border-radius: 16px; }
+    ::-webkit-scrollbar { width: 10px; } ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 10px; }
+    [x-cloak] { display: none !important; }
+    .ribbon { background: linear-gradient(120deg,#34d399,#10b981); }
+  </style>
+</head>
+<body x-data="aqar()" class="min-h-screen">
+
+  <!-- Demo banner -->
+  <div class="ribbon text-emerald-950 text-center text-sm font-bold py-2 px-4">
+    🏘️ عرض تجريبي تفاعلي — Aqar Syria · منصة عقارية ذكية (SaaS) &nbsp;·&nbsp;
+    <a href="https://github.com/Rami-Almasri/Real-Estate" target="_blank" class="underline">الكود المصدري ↗</a>
+  </div>
+
+  <!-- Nav -->
+  <header class="sticky top-0 z-30 glass">
+    <div class="max-w-6xl mx-auto flex items-center justify-between px-5 py-3">
+      <div class="flex items-center gap-2 font-extrabold text-xl">
+        <span class="grad-text">عقار سوريا</span><span class="text-2xl">🏘️</span>
+      </div>
+      <nav class="hidden md:flex items-center gap-6 text-sm text-slate-300">
+        <a href="#listings" class="hover:text-white">العقارات</a>
+        <a href="#match" class="hover:text-white">المطابقة الذكية</a>
+        <a href="#analytics" class="hover:text-white">تحليلات السوق</a>
+        <a href="#contract" class="hover:text-white">العقود</a>
+      </nav>
+      <span class="text-xs glass px-3 py-1 rounded-full text-emerald-300">Laravel 12 · Alpine · Chart.js</span>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="max-w-6xl mx-auto px-5 pt-14 pb-8 text-center">
+    <p class="text-emerald-400 font-semibold mb-3">منصة SaaS لإدارة المكاتب العقارية</p>
+    <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">
+      من السوق الورقي إلى <span class="grad-text">قرارات مبنية على البيانات</span>
+    </h1>
+    <p class="text-slate-400 max-w-2xl mx-auto mt-5 text-lg">
+      مطابقة ذكية بين رغبات المشترين والعقارات مع درجة توافق، تحليلات أسعار لكل منطقة،
+      وعقود إيجار وبيع عربية تُولّد تلقائياً.
+    </p>
+    <div class="flex flex-wrap justify-center gap-4 mt-8">
+      <div class="glass rounded-2xl px-6 py-4"><div class="text-3xl font-extrabold grad-text" x-text="properties.length"></div><div class="text-xs text-slate-400">عقار متاح</div></div>
+      <div class="glass rounded-2xl px-6 py-4"><div class="text-3xl font-extrabold grad-text">5</div><div class="text-xs text-slate-400">مدن مغطّاة</div></div>
+      <div class="glass rounded-2xl px-6 py-4"><div class="text-3xl font-extrabold grad-text">3</div><div class="text-xs text-slate-400">باقات اشتراك</div></div>
+    </div>
+  </section>
+
+  <!-- Map -->
+  <section class="max-w-6xl mx-auto px-5 py-6">
+    <div id="map" class="h-72 w-full"></div>
+  </section>
+
+  <!-- Listings -->
+  <section id="listings" class="max-w-6xl mx-auto px-5 py-10">
+    <div class="flex items-end justify-between mb-6 flex-wrap gap-3">
+      <div><h2 class="text-2xl font-extrabold">العقارات المتاحة</h2><p class="text-slate-400 text-sm">٦٤ عقاراً في النسخة الكاملة — هنا عيّنة تفاعلية</p></div>
+      <div class="flex gap-2 text-sm">
+        <template x-for="c in cities" :key="c">
+          <button @click="cityFilter = (cityFilter===c?'':c)" :class="cityFilter===c ? 'bg-brand text-emerald-950 font-bold' : 'glass text-slate-300'" class="px-3 py-1 rounded-full" x-text="c"></button>
+        </template>
+      </div>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <template x-for="p in filteredListings" :key="p.id">
+        <article class="glass rounded-2xl overflow-hidden hover:-translate-y-1 transition">
+          <div class="h-40 bg-cover bg-center relative" :style="`background-image:url(${p.image})`">
+            <span class="absolute top-3 right-3 ribbon text-emerald-950 text-xs font-bold px-2 py-1 rounded-lg" x-text="p.type"></span>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-bold" x-text="p.title"></h3>
+            </div>
+            <p class="text-slate-400 text-sm mt-1">📍 <span x-text="p.district"></span> — <span x-text="p.city"></span></p>
+            <div class="flex items-center gap-3 text-xs text-slate-300 mt-3">
+              <span>🛏️ <span x-text="p.rooms"></span> غرف</span>
+              <span>📐 <span x-text="p.area"></span> م²</span>
+            </div>
+            <div class="mt-3 text-lg font-extrabold grad-text" x-text="fmt(p.price) + ' ل.س'"></div>
+          </div>
+        </article>
+      </template>
+    </div>
+  </section>
+
+  <!-- Smart Match -->
+  <section id="match" class="max-w-6xl mx-auto px-5 py-10">
+    <div class="glass rounded-3xl p-6 md:p-8">
+      <h2 class="text-2xl font-extrabold">🎯 المطابقة الذكية</h2>
+      <p class="text-slate-400 text-sm mt-1">أدخل تفضيلاتك، وسيقوم المحرّك بترتيب العقارات حسب <b>درجة التوافق</b>.</p>
+      <div class="grid md:grid-cols-5 gap-3 mt-6">
+        <select x-model="pref.city" class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2">
+          <option value="">كل المدن</option><template x-for="c in cities" :key="c"><option x-text="c"></option></template>
+        </select>
+        <select x-model="pref.type" class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2">
+          <option value="">كل الأنواع</option><template x-for="t in types" :key="t"><option x-text="t"></option></template>
+        </select>
+        <div><input type="range" min="20000000" max="900000000" step="10000000" x-model.number="pref.maxPrice" class="w-full accent-emerald-500" /><div class="text-xs text-slate-400 text-center">حتى <span x-text="fmt(pref.maxPrice)"></span></div></div>
+        <select x-model.number="pref.rooms" class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2">
+          <option value="0">أي عدد غرف</option><option value="2">+٢ غرف</option><option value="3">+٣ غرف</option><option value="4">+٤ غرف</option>
+        </select>
+        <select x-model.number="pref.area" class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2">
+          <option value="0">أي مساحة</option><option value="100">+١٠٠ م²</option><option value="150">+١٥٠ م²</option><option value="250">+٢٥٠ م²</option>
+        </select>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+        <template x-for="m in matches" :key="m.id">
+          <div class="glass rounded-2xl p-4 flex gap-3 items-center">
+            <div class="relative w-16 h-16 shrink-0">
+              <svg viewBox="0 0 36 36" class="w-16 h-16 -rotate-90">
+                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1f2937" stroke-width="3"></circle>
+                <circle cx="18" cy="18" r="15.9" fill="none" :stroke="scoreColor(m.score)" stroke-width="3" stroke-linecap="round" :stroke-dasharray="`${m.score} 100`"></circle>
+              </svg>
+              <span class="absolute inset-0 flex items-center justify-center font-extrabold text-sm" x-text="m.score + '%'"></span>
+            </div>
+            <div class="min-w-0">
+              <h4 class="font-bold truncate" x-text="m.title"></h4>
+              <p class="text-xs text-slate-400" x-text="m.district + ' — ' + m.city"></p>
+              <p class="text-sm grad-text font-bold mt-1" x-text="fmt(m.price)+' ل.س'"></p>
+            </div>
+          </div>
+        </template>
+        <p x-show="matches.length===0" class="text-slate-500 col-span-full text-center py-6">لا توجد عقارات مطابقة — وسّع نطاق بحثك.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Analytics -->
+  <section id="analytics" class="max-w-6xl mx-auto px-5 py-10">
+    <h2 class="text-2xl font-extrabold mb-6">📊 تحليلات السوق</h2>
+    <div class="grid lg:grid-cols-3 gap-5">
+      <div class="glass rounded-2xl p-5"><h3 class="font-bold text-sm mb-3 text-slate-300">متوسط السعر حسب المنطقة (مليون ل.س)</h3><canvas id="chartDistrict" height="200"></canvas></div>
+      <div class="glass rounded-2xl p-5"><h3 class="font-bold text-sm mb-3 text-slate-300">اتجاه الأسعار — ٦ أشهر</h3><canvas id="chartTrend" height="200"></canvas></div>
+      <div class="glass rounded-2xl p-5"><h3 class="font-bold text-sm mb-3 text-slate-300">العرض حسب نوع العقار</h3><canvas id="chartType" height="200"></canvas></div>
+    </div>
+  </section>
+
+  <!-- Contract -->
+  <section id="contract" class="max-w-6xl mx-auto px-5 py-10 pb-20">
+    <div class="glass rounded-3xl p-6 md:p-8">
+      <h2 class="text-2xl font-extrabold">📄 توليد العقود تلقائياً</h2>
+      <p class="text-slate-400 text-sm mt-1">اختر عقاراً واسم المستأجر، وسيُنشئ النظام مسودّة عقد إيجار عربية بصيغة قابلة للطباعة (PDF في النسخة الكاملة عبر dompdf).</p>
+      <div class="grid md:grid-cols-3 gap-3 mt-6">
+        <select x-model.number="contract.propId" class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2">
+          <template x-for="p in properties" :key="p.id"><option :value="p.id" x-text="p.title"></option></template>
+        </select>
+        <input x-model="contract.tenant" placeholder="اسم المستأجر" class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2" />
+        <input x-model="contract.landlord" placeholder="اسم المالك" class="bg-slate-900 border border-white/10 rounded-xl px-3 py-2" />
+      </div>
+      <button @click="window.print()" class="mt-4 ribbon text-emerald-950 font-bold px-5 py-2 rounded-xl">طباعة / حفظ PDF 🖨️</button>
+
+      <div class="bg-white text-slate-900 rounded-2xl p-6 md:p-10 mt-6 leading-9" id="contractDoc">
+        <div class="text-center border-b-2 border-emerald-600 pb-3 mb-5">
+          <h3 class="text-2xl font-extrabold">عقد إيجار عقاري</h3>
+          <p class="text-sm text-slate-500">منصة عقار سوريا — وثيقة مُولّدة آلياً</p>
+        </div>
+        <p>إنه في يوم تحرير هذا العقد، اتفق الطرفان على ما يلي:</p>
+        <p class="mt-2"><b>الطرف الأول (المالك):</b> <span x-text="contract.landlord || '—'"></span></p>
+        <p><b>الطرف الثاني (المستأجر):</b> <span x-text="contract.tenant || '—'"></span></p>
+        <p class="mt-3"><b>العقار المؤجَّر:</b> <span x-text="selectedProp.title"></span> الواقع في <span x-text="selectedProp.district"></span> — <span x-text="selectedProp.city"></span>، بمساحة <span x-text="selectedProp.area"></span> م² و<span x-text="selectedProp.rooms"></span> غرف.</p>
+        <p><b>بدل الإيجار السنوي:</b> <span x-text="fmt(Math.round(selectedProp.price*0.08))"></span> ل.س تُدفع وفق الآلية المتفق عليها.</p>
+        <p class="mt-3 text-sm text-slate-600">يلتزم الطرفان بكافة البنود، ويُعدّ هذا العقد نافذاً اعتباراً من تاريخ توقيعه. تُرسل تنبيهات انتهاء العقد آلياً قبل ٣٠ يوماً.</p>
+        <div class="flex justify-between mt-8 text-sm font-bold"><span>توقيع المالك: ____________</span><span>توقيع المستأجر: ____________</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="border-t border-white/10 py-8 text-center text-slate-500 text-sm">
+    عقار سوريا — عرض تجريبي بُني بواسطة رامي المصري ·
+    <a href="https://github.com/Rami-Almasri/Real-Estate" target="_blank" class="text-emerald-400 underline">GitHub</a>
+  </footer>
+
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const IMG = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=700&q=80`;
+    function aqar() {
+      return {
+        cities: ['دمشق','حلب','حمص','اللاذقية','طرطوس'],
+        types: ['شقة','فيلا','محل تجاري','أرض'],
+        cityFilter: '',
+        pref: { city:'', type:'', maxPrice: 500000000, rooms:0, area:0 },
+        contract: { propId: 1, tenant:'', landlord:'' },
+        properties: [
+          { id:1, title:'شقة مشمسة بإطلالة', type:'شقة', city:'دمشق', district:'المالكي', price:280000000, rooms:3, area:140, lat:33.515, lng:36.292, image:IMG('photo-1502672260266-1c1ef2d93688') },
+          { id:2, title:'فيلا فاخرة مع حديقة', type:'فيلا', city:'دمشق', district:'يعفور', price:850000000, rooms:5, area:320, lat:33.56, lng:36.13, image:IMG('photo-1564013799919-ab600027ffc6') },
+          { id:3, title:'محل تجاري على شارع رئيسي', type:'محل تجاري', city:'حلب', district:'الفرقان', price:190000000, rooms:1, area:60, lat:36.21, lng:37.13, image:IMG('photo-1441986300917-64674bd600d8') },
+          { id:4, title:'شقة عائلية واسعة', type:'شقة', city:'حلب', district:'الموكامبو', price:160000000, rooms:3, area:155, lat:36.20, lng:37.14, image:IMG('photo-1484154218962-a197022b5858') },
+          { id:5, title:'شقة حديثة قرب البحر', type:'شقة', city:'اللاذقية', district:'الكورنيش', price:240000000, rooms:2, area:110, lat:35.52, lng:35.79, image:IMG('photo-1493809842364-78817add7ffb') },
+          { id:6, title:'أرض سكنية مرخّصة', type:'أرض', city:'طرطوس', district:'الرمل', price:120000000, rooms:0, area:500, lat:34.89, lng:35.88, image:IMG('photo-1500382017468-9049fed747ef') },
+          { id:7, title:'فيلا بإطلالة جبلية', type:'فيلا', city:'حمص', district:'الوعر', price:430000000, rooms:4, area:260, lat:34.73, lng:36.72, image:IMG('photo-1512917774080-9991f1c4c750') },
+          { id:8, title:'شقة استثمارية مؤثثة', type:'شقة', city:'دمشق', district:'المزة', price:210000000, rooms:2, area:120, lat:33.50, lng:36.25, image:IMG('photo-1522708323590-d24dbb6b0267') },
+          { id:9, title:'محل بموقع حيوي', type:'محل تجاري', city:'حمص', district:'الإنشاءات', price:140000000, rooms:1, area:48, lat:34.72, lng:36.71, image:IMG('photo-1497366216548-37526070297c') },
+        ],
+        get selectedProp() { return this.properties.find(p => p.id === this.contract.propId) || this.properties[0]; },
+        get filteredListings() { return this.cityFilter ? this.properties.filter(p => p.city === this.cityFilter) : this.properties; },
+        get matches() {
+          return this.properties.map(p => ({ ...p, score: this.score(p) }))
+            .filter(p => p.score > 0).sort((a,b) => b.score - a.score).slice(0,6);
+        },
+        score(p) {
+          let s = 40; // base
+          if (this.pref.city) s += (p.city === this.pref.city ? 25 : -40);
+          if (this.pref.type) s += (p.type === this.pref.type ? 20 : -30);
+          s += (p.price <= this.pref.maxPrice ? 15 : -25);
+          if (this.pref.rooms) s += (p.rooms >= this.pref.rooms ? 8 : -10);
+          if (this.pref.area) s += (p.area >= this.pref.area ? 7 : -8);
+          return Math.max(0, Math.min(100, Math.round(s)));
+        },
+        scoreColor(s) { return s >= 75 ? '#10b981' : s >= 50 ? '#f59e0b' : '#ef4444'; },
+        fmt(n) { return new Intl.NumberFormat('ar-SY').format(n); },
+        init() {
+          this.$nextTick(() => { this.initMap(); this.initCharts(); });
+        },
+        initMap() {
+          const map = L.map('map', { scrollWheelZoom: false }).setView([34.8, 36.4], 6);
+          L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution: '© OpenStreetMap, © CARTO' }).addTo(map);
+          this.properties.forEach(p => {
+            L.circleMarker([p.lat, p.lng], { radius: 8, color: '#10b981', fillColor:'#10b981', fillOpacity:.8 })
+              .addTo(map).bindPopup(`<b>${p.title}</b><br>${p.district} — ${p.city}<br>${this.fmt(p.price)} ل.س`);
+          });
+        },
+        initCharts() {
+          const grid = { color: 'rgba(255,255,255,.06)' }, ticks = { color: '#94a3b8' };
+          new Chart(chartDistrict, { type:'bar', data:{ labels:['المالكي','المزة','الفرقان','الكورنيش','الوعر'], datasets:[{ data:[1.95,1.75,3.1,2.2,1.65], backgroundColor:'#10b981', borderRadius:6 }] }, options:{ plugins:{legend:{display:false}}, scales:{ y:{grid,ticks}, x:{grid:{display:false},ticks} } } });
+          new Chart(chartTrend, { type:'line', data:{ labels:['يناير','فبراير','مارس','أبريل','مايو','يونيو'], datasets:[{ data:[160,168,175,182,179,190], borderColor:'#22d3ee', backgroundColor:'rgba(34,211,238,.15)', fill:true, tension:.4, pointRadius:3 }] }, options:{ plugins:{legend:{display:false}}, scales:{ y:{grid,ticks}, x:{grid:{display:false},ticks} } } });
+          new Chart(chartType, { type:'doughnut', data:{ labels:['شقق','فيلات','محلات','أراضٍ'], datasets:[{ data:[4,2,2,1], backgroundColor:['#10b981','#22d3ee','#f59e0b','#a78bfa'] }] }, options:{ plugins:{legend:{labels:{color:'#cbd5e1', font:{family:'Cairo'}}}} } });
+        },
+      };
+    }
+  </script>
+</body>
+</html>
