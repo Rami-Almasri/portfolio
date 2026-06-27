@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rami Almasri — Full-Stack Engineer (Laravel · React)</title>
+  <meta name="description" content="Rami Mazen Almasri — Full-Stack Software Engineer (Laravel & React.js) based in Damascus. I build scalable SaaS, e-commerce, and real-time platforms." />
+  <meta name="author" content="Rami Mazen Almasri" />
+
+  <meta property="og:title" content="Rami Almasri — Full-Stack Engineer" />
+  <meta property="og:description" content="I build production-grade SaaS, e-commerce, and real-time platforms with Laravel & React." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#0a0a0f" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>" />
+</head>
+<body>
+  <div class="bg-mesh" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    <div class="grid-overlay"></div>
+  </div>
+
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+  <!-- Navbar -->
+  <header class="nav" id="nav">
+    <a href="#hero" class="nav-logo">RA<span>.</span></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#about">About</a>
+      <a href="#achievements">Impact</a>
+      <a href="#work">Work</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a href="Rami_Almasri_CV.pdf" download class="nav-cta">Download CV ↓</a>
+    <button class="nav-burger" id="navBurger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero-inner">
+      <p class="hero-eyebrow reveal">// Full-Stack Software Engineer · Damascus, Syria</p>
+      <h1 class="hero-title">
+        <span class="reveal" style="--d:.05s">I build</span>
+        <span class="reveal grad" style="--d:.15s">production-grade</span>
+        <span class="reveal" style="--d:.25s">web platforms.</span>
+      </h1>
+      <p class="hero-sub reveal" style="--d:.4s">
+        I'm <strong>Rami Mazen Almasri</strong> — a full-stack developer specialized in the
+        <span class="tag-inline">Laravel</span> ecosystem and <span class="tag-inline">React.js</span>.
+        I design scalable backends, secure RESTful APIs, and modern, real-time interfaces — with clean code and performance at the core.
+      </p>
+      <div class="hero-actions reveal" style="--d:.55s">
+        <a href="#work" class="btn btn-primary">View my work <span>↓</span></a>
+        <a href="Rami_Almasri_CV.pdf" download class="btn btn-ghost">Download CV ↓</a>
+      </div>
+      <div class="hero-stats reveal" style="--d:.7s">
+        <div class="stat"><span class="stat-num" data-count="6">0</span><span class="stat-label">Full-stack apps</span></div>
+        <div class="stat"><span class="stat-num" data-count="2">0</span><span class="stat-label">Live SaaS products</span></div>
+        <div class="stat"><span class="stat-num" data-count="248">0</span><span class="stat-label">Product variants modeled</span></div>
+      </div>
+    </div>
+    <a href="#about" class="hero-scroll" aria-label="Scroll down"><span></span></a>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="section" id="about">
+    <div class="section-head reveal">
+      <span class="section-index">01</span>
+      <h2 class="section-title">About</h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>I'm a results-driven full-stack developer with specialized expertise in the <strong>Laravel ecosystem</strong> and <strong>React.js</strong>. I have a proven track record building scalable backend architectures, designing secure RESTful APIs, and developing modern, responsive user interfaces.</p>
+        <p>I've worked in high-stakes environments — the <strong>IXCoders / Tamkeen Program</strong> — focusing on clean code, system reliability, and performance optimization for enterprise-level applications. My projects ship the hard parts: <em>real-time chat, push notifications, payments, role-based access, and Arabic <span class="mono">RTL</span> interfaces</em>.</p>
+        <p>I build like the next person to read the code matters. Because they do.</p>
+      </div>
+      <aside class="about-card reveal">
+        <h3>What I bring</h3>
+        <ul class="check-list">
+          <li>End-to-end ownership: API → UI → deploy</li>
+          <li>RESTful API design + Postman documentation</li>
+          <li>Auth &amp; RBAC (Sanctum / Passport)</li>
+          <li>Real-time (Pusher) &amp; Push Notifications (Firebase)</li>
+          <li>Stripe payments integration</li>
+          <li>MySQL design, normalization &amp; query optimization</li>
+        </ul>
+        <div class="about-meta">
+          <span>📍 Damascus, Syria · Remote-ready</span>
+          <span>💬 Arabic · English</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- KEY ACHIEVEMENTS / IMPACT -->
+  <section class="section" id="achievements">
+    <div class="section-head reveal">
+      <span class="section-index">02</span>
+      <h2 class="section-title">Key Achievements</h2>
+      <p class="section-desc">Impact, in concrete terms — every number below comes from a real project I built.</p>
+    </div>
+    <div class="impact-grid" id="impactGrid"><!-- injected by script.js --></div>
+  </section>
+
+  <!-- WORK -->
+  <section class="section" id="work">
+    <div class="section-head reveal">
+      <span class="section-index">03</span>
+      <h2 class="section-title">Selected Work</h2>
+      <p class="section-desc">Six full-stack products. Each card has an engineer's note on what makes it non-trivial.</p>
+    </div>
+
+    <div class="filters reveal" id="filters">
+      <button class="filter active" data-filter="all">All</button>
+      <button class="filter" data-filter="saas">SaaS</button>
+      <button class="filter" data-filter="ecommerce">E-commerce</button>
+      <button class="filter" data-filter="react">React</button>
+      <button class="filter" data-filter="laravel">Laravel</button>
+    </div>
+
+    <div class="projects" id="projects"><!-- injected by script.js --></div>
+
+    <div class="work-more reveal">
+      <a href="https://github.com/Rami-Almasri?tab=repositories" target="_blank" rel="noopener" class="btn btn-ghost">
+        See all repositories on GitHub ↗
+      </a>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE + EDUCATION -->
+  <section class="section" id="experience">
+    <div class="section-head reveal">
+      <span class="section-index">04</span>
+      <h2 class="section-title">Experience &amp; Education</h2>
+    </div>
+    <div class="xp-grid">
+      <div class="timeline reveal">
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-period">Sept 2025 – May 2026</div>
+          <h3>Full-Stack Developer Trainee</h3>
+          <div class="timeline-org">IXCoders — Tamkeen Program</div>
+          <ul>
+            <li>Developed scalable backend systems with Laravel, applying the <strong>Service Pattern</strong> and MVC principles.</li>
+            <li>Built and documented production-ready <strong>RESTful APIs</strong> with comprehensive Postman collections.</li>
+            <li>Optimized complex database queries, reducing data-retrieval time for large-scale datasets.</li>
+            <li>Collaborated in a professional Git-based environment, adhering to Clean Code standards.</li>
+          </ul>
+        </div>
+      </div>
+      <aside class="edu-card reveal">
+        <h3>🎓 Education</h3>
+        <div class="edu-item">
+          <div class="edu-degree">Bachelor's Degree in Information Technology</div>
+          <div class="edu-school">International University for Science and Technology (IUST)</div>
+        </div>
+        <div class="edu-divider"></div>
+        <h3>🏅 Highlights</h3>
+        <ul class="check-list">
+          <li>Final graduation project: Dr.Pets veterinary system</li>
+          <li>Trained in an enterprise, Git-based team workflow</li>
+          <li>Postman-documented, production-ready APIs</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <!-- STACK -->
+  <section class="section" id="stack">
+    <div class="section-head reveal">
+      <span class="section-index">05</span>
+      <h2 class="section-title">Tech Stack</h2>
+      <p class="section-desc">The tools I reach for, grouped by where they live.</p>
+    </div>
+    <div class="stack-grid" id="stackGrid"><!-- injected by script.js --></div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section contact" id="contact">
+    <div class="contact-card reveal">
+      <span class="section-index">06</span>
+      <h2 class="contact-title">Let's build something<br /><span class="grad">worth shipping.</span></h2>
+      <p class="contact-sub">Open to full-stack engineering roles, freelance, and serious collaborations. Fast to respond.</p>
+      <div class="contact-actions">
+        <a href="mailto:ramialmasri101@gmail.com" class="btn btn-primary">Email me</a>
+        <a href="Rami_Almasri_CV.pdf" download class="btn btn-ghost">Download CV ↓</a>
+      </div>
+      <div class="contact-links">
+        <a href="mailto:ramialmasri101@gmail.com">ramialmasri101@gmail.com</a>
+        <a href="https://github.com/Rami-Almasri" target="_blank" rel="noopener">github.com/Rami-Almasri</a>
+        <a href="https://linkedin.com/in/rami-almasri-0a7155377" target="_blank" rel="noopener">LinkedIn ↗</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <span>© <span id="year"></span> Rami Mazen Almasri</span>
+    <span class="footer-built">Designed &amp; coded from scratch — no templates.</span>
+  </footer>
+
+  <!-- CASE STUDY MODAL (Aqar Syria) -->
+  <div class="modal" id="caseModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="caseTitle">
+      <button class="modal-close" data-close aria-label="Close">×</button>
+      <div class="modal-body" id="caseBody"><!-- injected by script.js --></div>
+    </div>
+  </div>
+
+  <script src="script.js?v=3"></script>
+</body>
+</html>
