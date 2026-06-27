@@ -24,7 +24,7 @@ const PROJECTS = [
   {
     name: 'Alboraq',
     repo: 'alboraq',
-    demo: null,
+    demo: 'demos/alboraq/index.html',
     sub: 'البراق · Samsung Retail E-commerce',
     badge: 'E-commerce · Real-time',
     filters: ['ecommerce', 'react', 'laravel'],
@@ -57,7 +57,7 @@ const PROJECTS = [
   {
     name: 'Soaply',
     repo: 'Soap_sabikat_alsham',
-    demo: null,
+    demo: 'demos/soaply/index.html',
     sub: 'Artisan Soap E-commerce',
     badge: 'E-commerce · SPA',
     filters: ['ecommerce', 'react', 'laravel'],
@@ -68,7 +68,7 @@ const PROJECTS = [
   {
     name: 'Todo Fullstack',
     repo: 'Todo_fullstack',
-    demo: null,
+    demo: 'demos/todo/index.html',
     sub: 'Full-stack CRUD + Material UI',
     badge: 'Fundamentals',
     filters: ['react', 'laravel'],
