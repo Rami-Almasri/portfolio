@@ -1,0 +1,12 @@
+{
+  "files": {
+    "main.css": "/demos/fleetview/static/css/main.75e22688.css",
+    "main.js": "/demos/fleetview/static/js/main.d1953fbc.js",
+    "static/js/206.5f917b3c.chunk.js": "/demos/fleetview/static/js/206.5f917b3c.chunk.js",
+    "index.html": "/demos/fleetview/index.html"
+  },
+  "entrypoints": [
+    "static/css/main.75e22688.css",
+    "static/js/main.d1953fbc.js"
+  ]
+}

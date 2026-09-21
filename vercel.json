@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/demos/fleetview/((?!static/|cars/|brands/).*)",
+      "destination": "/demos/fleetview/index.html"
+    }
+  ]
+}
