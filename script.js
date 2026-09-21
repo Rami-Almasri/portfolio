@@ -11,7 +11,7 @@ const PROJECTS = [
   {
     name: 'FleetView',
     repo: 'Fleet_maintenance',
-    demo: null,
+    demo: 'demos/fleetview/index.html',
     private: true,
     caseStudy: 'fleetview',
     sub: 'Fleet Operations Platform · Faster Cars (UAE)',
@@ -238,17 +238,9 @@ closed</code></pre>
     </div>
 
     <div class="cs-cta">
-      <a href="https://github.com/Rami-Almasri/Real-Estate" target="_blank" rel="noopener" class="btn btn-primary">View source ↗</a>
+      <a href="demos/aqar/index.html" target="_blank" rel="noopener" class="btn btn-primary">Explore the demo ↗</a>
     </div>
   `,
-};
-
-/* ---------- Per-project local-run instructions (for preview modal) ---------- */
-const SETUP = {
-  alboraq: { backend: 'cd alboraq/backend', frontend: 'cd alboraq/frontend' },
-  Soap_sabikat_alsham: { backend: 'cd Soap_sabikat_alsham/soap-backend', frontend: 'cd Soap_sabikat_alsham/soap-frontend' },
-  Todo_fullstack: { backend: 'cd Todo_fullstack/backend-api', frontend: 'cd Todo_fullstack/frontend-client' },
-  'Real-Estate': { single: true },
 };
 
 /* ---------- Render projects ---------- */
@@ -265,54 +257,29 @@ function projectActions(p) {
     : '';
   const src = p.private
     ? `<span class="proj-btn private" title="Proprietary client system — source is not public">Private · client system</span>`
-    : `<a href="https://github.com/Rami-Almasri/${p.repo}" target="_blank" rel="noopener" class="proj-btn ghost">Source ↗</a>`;
+    : '';
   return demo + cs + src;
 }
 
-/* ---------- Preview modal content (apps that need a hosted backend) ---------- */
+/* ---------- Preview modal content (apps without a public demo) ---------- */
 function previewHTML(p) {
-  const s = SETUP[p.repo] || {};
   const mail = `mailto:ramialmasri101@gmail.com`
     + `?subject=${encodeURIComponent('Live walkthrough request — ' + p.name)}`
     + `&body=${encodeURIComponent('Hi Rami,\n\nCould you send me a live walkthrough of ' + p.name + '?\n\nThanks,')}`;
-  const steps = s.single
-    ? `# 1 — Clone &amp; install
-git clone https://github.com/Rami-Almasri/${p.repo}.git
-cd ${p.repo}
-composer install &amp;&amp; npm install
-
-# 2 — Configure &amp; seed
-cp .env.example .env &amp;&amp; php artisan key:generate
-php artisan migrate --seed
-
-# 3 — Run
-npm run dev          # assets
-php artisan serve    # http://localhost:8000`
-    : `# 1 — Backend (Laravel API)
-git clone https://github.com/Rami-Almasri/${p.repo}.git
-${s.backend || 'cd ' + p.repo + '/backend'}
-composer install &amp;&amp; cp .env.example .env
-php artisan key:generate &amp;&amp; php artisan migrate --seed
-php artisan serve        # http://localhost:8000
-
-# 2 — Frontend (new terminal)
-${s.frontend || 'cd ' + p.repo + '/frontend'}
-npm install &amp;&amp; npm run dev   # http://localhost:5173`;
   return `
     <span class="cs-tag">Live Preview</span>
-    <h2 class="cs-title">${p.name} <span class="grad">— run it yourself</span></h2>
-    <p class="cs-lead">${p.sub}. This is a full-stack app with a Laravel API and database, so a public demo needs the backend hosted. Here's the complete experience running locally in ~2 minutes:</p>
+    <h2 class="cs-title">${p.name} <span class="grad">— see it in action</span></h2>
+    <p class="cs-lead">${p.sub}. This is a full-stack application with a Laravel API and a database behind it, so there is no public sandbox to click through — but I am glad to show you the real thing.</p>
     <div class="cs-section">
-      <h3>⚙️ Quickstart</h3>
-      <pre class="cs-code"><code>${steps}</code></pre>
+      <h3>🎥 A guided walkthrough</h3>
+      <p>I will screen-share the running application and walk you through the parts you care about — the data model, the workflow, the admin side, whatever is most relevant to your team.</p>
     </div>
     <div class="cs-section">
-      <h3>💡 Want a guided walkthrough instead?</h3>
-      <p>I'm happy to give a live screen-share demo, or spin up a hosted instance on request.</p>
+      <h3>🔐 On the source</h3>
+      <p>The repository is private. Happy to walk through the architecture and specific implementation decisions live, or under an NDA where that is appropriate.</p>
     </div>
     <div class="cs-cta">
-      <a href="https://github.com/Rami-Almasri/${p.repo}" target="_blank" rel="noopener" class="btn btn-primary">View source ↗</a>
-      <a href="${mail}" class="btn btn-ghost">Request a walkthrough</a>
+      <a href="${mail}" class="btn btn-primary">Request a walkthrough</a>
     </div>
   `;
 }

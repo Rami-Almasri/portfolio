@@ -3,17 +3,13 @@
 A senior-style breakdown of each project: what it is, the stack, and the **one thing**
 that makes it non-trivial engineering (the "note" a hiring lead actually cares about).
 
-> **Live Demo links:** each project below has a `Live Demo:` line. These apps have a Laravel
-> backend + database, so they need a PHP host (Railway/Render) for the API plus Vercel/Netlify
-> for the React frontend — they aren't auto-live like a static site. Paste a deployed URL into
-> the `demo` field in `script.js` and the card button flips from **"Demo on request"** to
-> **"Live Demo ↗"** automatically. (Ask me and I'll walk you through deploying any one of them.)
-
+> **Source code:** repositories are not linked from the portfolio. Client systems are private,
+> and the personal projects are presented through their live demos instead.
 ---
 
 ## 1. FleetView — Fleet Operations Platform  ⭐ Production
-**Repo:** `Fleet_maintenance` — **private (proprietary client system)**
-**Live Demo:** _Not public — walkthrough on request._
+**Source:** _Private — proprietary client system._
+**Live Demo:** `demos/fleetview/index.html` — interactive workflow demo (synthetic data).
 **Stack:** PHP 8.2 · Laravel 12 · Sanctum · spatie/laravel-permission · MySQL 8 · React 19 · React Router 7 · Tailwind 3 · Docker · Google Sheets API · Odoo 18 JSON-RPC
 
 The in-house fleet operations platform for **Faster Cars**, a car-rental company in the UAE running several
@@ -32,8 +28,8 @@ It replaced a WhatsApp group.
 ---
 
 ## 2. Aqar Syria — Smart Real-Estate SaaS  ⭐ Flagship
-**Repo:** [Real-Estate](https://github.com/Rami-Almasri/Real-Estate)
-**Live Demo:** _On request — deploy-ready (Laravel + Blade)._
+**Source:** _Not published._
+**Live Demo:** local demo under `demos/`.
 **Stack:** Laravel 12 · Blade · Alpine.js · GSAP/AOS · Chart.js · Leaflet · dompdf (ar-php) · Sanctum · SQLite→MySQL
 
 Subscription SaaS that turns paper-based brokerages into data-driven platforms.
@@ -47,8 +43,8 @@ Subscription SaaS that turns paper-based brokerages into data-driven platforms.
 ---
 
 ## 3. Alboraq — Samsung Retail E-commerce (Arabic RTL)
-**Repo:** [alboraq](https://github.com/Rami-Almasri/alboraq)
-**Live Demo:** _On request — deploy-ready (Laravel API + React)._
+**Source:** _Not published._
+**Live Demo:** local demo under `demos/`.
 **Stack:** Laravel 12 · React 19 · Vite · Tailwind · Framer Motion · Spatie Permission · Spatie Media Library · Sanctum
 
 Full e-commerce platform for البراق للاتصالات, an authorized Samsung retailer in Syria.
@@ -61,8 +57,8 @@ Full e-commerce platform for البراق للاتصالات, an authorized Sams
 ---
 
 ## 4. Dr.pets — Pet-care Marketplace
-**Repo:** [Dr.pets](https://github.com/Rami-Almasri/Dr.pets)
-**Live Demo:** _On request — deploy-ready (Laravel API + React)._
+**Source:** _Not published._
+**Live Demo:** local demo under `demos/`.
 **Stack:** Laravel 11 · React 18 · Vite · Tailwind · Framer Motion · React Router · Stripe · Sanctum
 
 All-in-one pet-care platform: shop supplies, book vets/groomers, community.
@@ -74,8 +70,8 @@ All-in-one pet-care platform: shop supplies, book vets/groomers, community.
 ---
 
 ## 5. Petit Monde — Children's Fashion Store
-**Repo:** [fashion-ecommerce-laravel-react](https://github.com/Rami-Almasri/fashion-ecommerce-laravel-react)
-**Live Demo:** _On request — deploy-ready (Laravel API + React)._
+**Source:** _Not published._
+**Live Demo:** local demo under `demos/`.
 **Stack:** Laravel 12 · React 18 · Vite · Tailwind · Framer Motion · Spatie Permission · Axios
 
 Children's-fashion storefront with a seeded, realistic catalog (4 categories, 16 products, 248 variants, 4 branches, 140 orders).
@@ -88,8 +84,8 @@ Children's-fashion storefront with a seeded, realistic catalog (4 categories, 16
 ---
 
 ## 6. Soaply — Artisan Soap E-commerce
-**Repo:** [Soap_sabikat_alsham](https://github.com/Rami-Almasri/Soap_sabikat_alsham)
-**Live Demo:** _On request — deploy-ready (Laravel API + React)._
+**Source:** _Not published._
+**Live Demo:** local demo under `demos/`.
 **Stack:** Laravel 11 (API) · React · MySQL · Sanctum · Context API · Axios · Tailwind
 
 Mobile-first storefront for handmade soap with real-time search/filter and a Context-API cart.
@@ -99,8 +95,8 @@ Mobile-first storefront for handmade soap with real-time search/filter and a Con
 ---
 
 ## 7. Todo Fullstack — Fundamentals, done right
-**Repo:** [Todo_fullstack](https://github.com/Rami-Almasri/Todo_fullstack)
-**Live Demo:** _On request — deploy-ready (Laravel API + React)._
+**Source:** _Not published._
+**Live Demo:** local demo under `demos/`.
 **Stack:** Laravel · React · Material UI · REST · MySQL · Axios
 
 Full CRUD todo app with animated transitions, cleanly split into `backend-api` and `frontend-client`.

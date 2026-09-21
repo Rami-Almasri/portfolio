@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FleetView — Fleet Operations Platform | Interactive Demo</title>
+  <meta name="description" content="FleetView — interactive demo of a fleet maintenance operations platform: a guarded workflow state machine, fenced states, pause/resume, and garage scorecards." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: {
+      fontFamily: { sans: ['Inter','system-ui','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+      colors: { ink: '#070b16' },
+    }}}
+  </script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; background: #070b16; color: #e2e8f0; }
+    .glass { background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.08); }
+    .grad-text { background: linear-gradient(120deg,#7dd3fc,#38bdf8,#818cf8); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .ribbon { background: linear-gradient(120deg,#38bdf8,#818cf8); }
+    .aurora-bg { background: radial-gradient(1200px 400px at 50% -10%, rgba(56,189,248,.16), transparent 70%); }
+    ::-webkit-scrollbar { width: 10px; height: 10px; } ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+    [x-cloak] { display: none !important; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    html[dir="rtl"] .flip { transform: scaleX(-1); }
+  </style>
+</head>
+<body x-data="fleetview()" x-init="init()" class="min-h-screen aurora-bg">
+
+  <!-- Demo banner -->
+  <div class="ribbon text-slate-950 text-center text-sm font-bold py-2 px-4">
+    🚗 <span x-text="t('Interactive demo — FleetView · Fleet Operations Platform','عرض تفاعلي — FleetView · منصة عمليات الأسطول')"></span>
+    &nbsp;·&nbsp;
+    <span class="font-normal" x-text="t('All data on this page is synthetic','جميع البيانات في هذه الصفحة وهمية')"></span>
+  </div>
+
+  <!-- Nav -->
+  <header class="sticky top-0 z-30 glass backdrop-blur">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-5 py-3 gap-3">
+      <div class="flex items-center gap-2 font-extrabold text-xl">
+        <span class="text-2xl">🚗</span><span class="grad-text">FleetView</span>
+      </div>
+      <nav class="hidden lg:flex items-center gap-6 text-sm text-slate-300">
+        <a href="#board" class="hover:text-white" x-text="t('Workflow','سير العمل')"></a>
+        <a href="#fenced" class="hover:text-white" x-text="t('Availability','التوفّر')"></a>
+        <a href="#garages" class="hover:text-white" x-text="t('Garages','الورش')"></a>
+        <a href="#governance" class="hover:text-white" x-text="t('Data','البيانات')"></a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <span class="hidden md:inline text-xs glass px-3 py-1 rounded-full text-sky-300">Laravel 12 · React 19 · MySQL 8</span>
+        <button @click="toggleLang()" class="text-xs font-bold glass px-3 py-1.5 rounded-full text-sky-300 hover:text-white">
+          <span x-text="lang === 'en' ? 'ع' : 'EN'"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="max-w-7xl mx-auto px-5 pt-12 pb-6 text-center">
+    <p class="text-sky-400 font-semibold mb-3" x-text="t('In-house fleet operations · car rental, UAE','منصة داخلية لعمليات الأسطول · تأجير سيارات، الإمارات')"></p>
+    <h1 class="text-4xl md:text-6xl font-extrabold leading-tight">
+      <span x-text="t('It replaced a','حلّت محل')"></span>
+      <span class="grad-text" x-text="t('WhatsApp group','مجموعة واتساب')"></span>
+    </h1>
+    <p class="text-slate-400 max-w-3xl mx-auto mt-5 text-lg" x-text="t('Every repair used to be coordinated by message. Now every transition is guarded on the server, stamped with who and when, and handed to the next role automatically.','كانت كل عملية صيانة تُدار عبر الرسائل. الآن كل انتقال محميّ على الخادم، ومختوم بمن قام به ومتى، ويُسلَّم تلقائياً للدور التالي.')"></p>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+      <div class="glass rounded-2xl px-5 py-4">
+        <div class="text-3xl font-extrabold grad-text" x-text="tickets.length"></div>
+        <div class="text-xs text-slate-400 mt-1" x-text="t('Open tickets','تذاكر مفتوحة')"></div>
+      </div>
+      <div class="glass rounded-2xl px-5 py-4">
+        <div class="text-3xl font-extrabold text-amber-400" x-text="inShopCount"></div>
+        <div class="text-xs text-slate-400 mt-1" x-text="t('Actually in the shop','فعلياً في الورشة')"></div>
+      </div>
+      <div class="glass rounded-2xl px-5 py-4">
+        <div class="text-3xl font-extrabold text-emerald-400" x-text="rentableCount"></div>
+        <div class="text-xs text-slate-400 mt-1" x-text="t('Open ticket, still rentable','تذكرة مفتوحة وقابلة للتأجير')"></div>
+      </div>
+      <div class="glass rounded-2xl px-5 py-4">
+        <div class="text-3xl font-extrabold text-slate-200" x-text="closedCount"></div>
+        <div class="text-xs text-slate-400 mt-1" x-text="t('Closed this session','أُغلقت في هذه الجلسة')"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pipeline + tickets -->
+  <section id="board" class="max-w-7xl mx-auto px-5 py-10">
+    <div class="flex items-end justify-between mb-5 flex-wrap gap-3">
+      <div>
+        <h2 class="text-2xl font-extrabold" x-text="t('① The guarded workflow','① سير العمل المحميّ')"></h2>
+        <p class="text-slate-400 text-sm mt-1" x-text="t('A ticket moves one step at a time. Try to skip a step and the server refuses.','تتحرك التذكرة خطوة واحدة في كل مرة. حاول تخطّي خطوة وسيرفض الخادم ذلك.')"></p>
+      </div>
+      <button @click="reset()" class="text-xs glass px-4 py-2 rounded-full text-slate-300 hover:text-white" x-text="t('↺ Reset demo','↺ إعادة تعيين')"></button>
+    </div>
+
+    <div class="overflow-x-auto pb-3">
+      <div class="flex items-stretch gap-2 min-w-max">
+        <template x-for="(st, i) in states" :key="st.key">
+          <div class="flex items-center gap-2">
+            <div class="glass rounded-xl px-3 py-2 text-center min-w-[136px]"
+                 :class="countAt(st.key) ? 'ring-1 ring-sky-400/40' : 'opacity-50'">
+              <div class="text-[10px] mono text-sky-300" x-text="st.key"></div>
+              <div class="text-[11px] text-slate-400 mt-0.5" x-text="t(st.en, st.ar)"></div>
+              <div class="text-lg font-extrabold mt-1" x-text="countAt(st.key)"></div>
+              <div class="text-[9px] mt-1" :class="st.rentable ? 'text-emerald-400' : 'text-amber-400'"
+                   x-text="st.rentable ? t('rentable','قابلة للتأجير') : t('in shop','في الورشة')"></div>
+            </div>
+            <span class="text-slate-600 flip" x-show="i < states.length - 1">→</span>
+          </div>
+        </template>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-4 mt-7">
+      <template x-for="tk in tickets" :key="tk.id">
+        <article class="glass rounded-2xl p-5">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="mono text-sm font-bold text-sky-300" x-text="tk.plate"></span>
+                <span class="text-xs text-slate-500" x-text="tk.model"></span>
+              </div>
+              <div class="text-sm text-slate-300 mt-1" x-text="t(tk.faultEn, tk.faultAr)"></div>
+            </div>
+            <div class="text-end">
+              <span class="text-[10px] mono px-2 py-1 rounded-lg"
+                    :class="stateOf(tk).rentable ? 'bg-emerald-500/15 text-emerald-300' : 'bg-amber-500/15 text-amber-300'"
+                    x-text="tk.paused ? 'paused_returned_to_service' : tk.status"></span>
+              <div class="text-[10px] mt-1.5" :class="stateOf(tk).rentable ? 'text-emerald-400' : 'text-amber-400'"
+                   x-text="stateOf(tk).rentable ? t('✔ car is rentable','✔ السيارة قابلة للتأجير') : t('⚠ car is in the shop','⚠ السيارة في الورشة')"></div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-slate-500 mt-3 flex flex-wrap gap-x-4 gap-y-1">
+            <span x-show="tk.garage">🔧 <span x-text="tk.garage"></span></span>
+            <span x-show="tk.paused" class="text-indigo-300">⏸ <span x-text="t('paused from','موقوفة من')+' '+tk.pausedFrom"></span></span>
+          </div>
+
+          <div class="mt-4 border-t border-white/5 pt-3">
+            <div class="text-[10px] uppercase tracking-wider text-slate-600 mb-1.5" x-text="t('Audit trail — generated, never typed','سجل التدقيق — يُولَّد ولا يُكتب')"></div>
+            <div class="space-y-1 max-h-24 overflow-y-auto">
+              <template x-for="(h, i) in tk.history" :key="i">
+                <div class="text-[11px] mono text-slate-500">
+                  <span class="text-slate-400" x-text="h.at"></span>
+                  <span x-text="'· ' + h.status"></span>
+                  <span class="text-sky-500/70" x-text="'· ' + h.by"></span>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2 mt-4">
+            <button @click="advance(tk)"
+                    class="text-xs font-bold ribbon text-slate-950 px-3 py-1.5 rounded-full hover:opacity-90"
+                    x-text="t('Advance →','تقديم →')"></button>
+            <button @click="skip(tk)"
+                    class="text-xs font-bold px-3 py-1.5 rounded-full border border-rose-400/40 text-rose-300 hover:bg-rose-500/10"
+                    x-text="t('⚡ Try to skip to closed','⚡ محاولة القفز إلى الإغلاق')"></button>
+            <button @click="pause(tk)" x-show="canPause(tk)"
+                    class="text-xs font-bold px-3 py-1.5 rounded-full border border-indigo-400/40 text-indigo-300 hover:bg-indigo-500/10"
+                    x-text="t('⏸ Customer needs this car','⏸ العميل يحتاج هذه السيارة')"></button>
+            <button @click="resume(tk)" x-show="tk.paused"
+                    class="text-xs font-bold px-3 py-1.5 rounded-full border border-emerald-400/40 text-emerald-300 hover:bg-emerald-500/10"
+                    x-text="t('▶ Resume repair','▶ استئناف الصيانة')"></button>
+          </div>
+        </article>
+      </template>
+    </div>
+
+    <p class="text-sm text-slate-500 mt-6 text-center" x-show="!tickets.length"
+       x-text="t('Every ticket is closed. Hit Reset to run the workflow again.','أُغلقت جميع التذاكر. اضغط إعادة التعيين لتشغيل سير العمل مجدداً.')"></p>
+  </section>
+
+  <!-- Fenced states -->
+  <section id="fenced" class="max-w-7xl mx-auto px-5 py-10">
+    <div class="glass rounded-3xl p-6 md:p-8">
+      <h2 class="text-2xl font-extrabold" x-text="t('② Rental is king','② الإيجار هو الأولوية')"></h2>
+      <p class="text-slate-400 text-sm mt-2 max-w-3xl" x-text="t('A car earning money outranks a car being fixed. So an open ticket does NOT automatically mean the car is unavailable — several states are deliberately fenced out of the in-maintenance set.','السيارة التي تحقق دخلاً أهم من السيارة قيد الإصلاح. لذلك التذكرة المفتوحة لا تعني تلقائياً أن السيارة غير متاحة — بعض الحالات مستثناة عمداً.')"></p>
+      <div class="grid md:grid-cols-2 gap-4 mt-6">
+        <div class="rounded-2xl border border-emerald-400/25 bg-emerald-500/5 p-5">
+          <div class="text-emerald-300 font-bold text-sm mb-3" x-text="t('Ticket open · car still rentable','تذكرة مفتوحة · السيارة قابلة للتأجير')"></div>
+          <template x-for="st in rentableStates" :key="st.key">
+            <div class="mono text-xs text-slate-400 py-1.5 border-b border-white/5 last:border-0">
+              <span class="text-emerald-400">✔</span> <span x-text="st.key"></span>
+              <div class="text-slate-600 mt-0.5" x-text="t(st.why_en, st.why_ar)"></div>
+            </div>
+          </template>
+        </div>
+        <div class="rounded-2xl border border-amber-400/25 bg-amber-500/5 p-5">
+          <div class="text-amber-300 font-bold text-sm mb-3" x-text="t('Car genuinely unavailable','السيارة غير متاحة فعلياً')"></div>
+          <template x-for="st in blockedStates" :key="st.key">
+            <div class="mono text-xs text-slate-400 py-1.5 border-b border-white/5 last:border-0">
+              <span class="text-amber-400">⚠</span> <span x-text="st.key"></span>
+              <div class="text-slate-600 mt-0.5" x-text="t(st.why_en, st.why_ar)"></div>
+            </div>
+          </template>
+        </div>
+      </div>
+      <p class="text-xs text-slate-500 mt-5 mono" x-text="t('If you write a query meaning “is this car in the shop”, use the workflow helpers — never test workflow_status != null.','إذا كتبت استعلاماً يعني “هل السيارة في الورشة”، استخدم دوال سير العمل — ولا تختبر workflow_status != null أبداً.')"></p>
+    </div>
+  </section>
+
+  <!-- Garage scorecard -->
+  <section id="garages" class="max-w-7xl mx-auto px-5 py-10">
+    <div class="flex items-end justify-between mb-5 flex-wrap gap-3">
+      <div>
+        <h2 class="text-2xl font-extrabold" x-text="t('③ Garage scorecard','③ بطاقة تقييم الورش')"></h2>
+        <p class="text-slate-400 text-sm mt-1" x-text="t('Repairs are outsourced. “Which garage should we trust?” becomes a number, not an opinion.','الإصلاحات تُسنَد لورش خارجية. “أي ورشة نثق بها؟” تصبح رقماً لا رأياً.')"></p>
+      </div>
+      <div class="flex gap-2 text-xs">
+        <template x-for="c in ['fixRate','comeback','turnaround']" :key="c">
+          <button @click="sortBy = c" :class="sortBy===c ? 'ribbon text-slate-950 font-bold' : 'glass text-slate-400'"
+                  class="px-3 py-1.5 rounded-full" x-text="colLabel(c)"></button>
+        </template>
+      </div>
+    </div>
+    <div class="glass rounded-2xl overflow-x-auto">
+      <table class="w-full text-sm min-w-[640px]">
+        <thead class="text-slate-500 text-xs uppercase tracking-wider">
+          <tr class="border-b border-white/10">
+            <th class="text-start px-5 py-3" x-text="t('Garage','الورشة')"></th>
+            <th class="text-start px-4 py-3" x-text="t('Jobs','الأعمال')"></th>
+            <th class="text-start px-4 py-3" x-text="t('Fix rate','نسبة الإصلاح')"></th>
+            <th class="text-start px-4 py-3" x-text="t('Comeback','نسبة التكرار')"></th>
+            <th class="text-start px-4 py-3" x-text="t('Turnaround','مدة الإنجاز')"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <template x-for="g in sortedGarages" :key="g.name">
+            <tr class="border-b border-white/5 last:border-0 hover:bg-white/[.02]">
+              <td class="px-5 py-3 font-semibold" x-text="g.name"></td>
+              <td class="px-4 py-3 text-slate-400 mono" x-text="g.jobs"></td>
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2">
+                  <div class="h-1.5 w-20 bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full rounded-full" :class="g.fixRate >= 70 ? 'bg-emerald-400' : g.fixRate >= 55 ? 'bg-amber-400' : 'bg-rose-400'"
+                         :style="`width:${g.fixRate}%`"></div>
+                  </div>
+                  <span class="mono text-xs" x-text="g.fixRate + '%'"></span>
+                </div>
+              </td>
+              <td class="px-4 py-3 mono text-xs" :class="g.comeback <= 25 ? 'text-emerald-400' : g.comeback <= 40 ? 'text-amber-400' : 'text-rose-400'" x-text="g.comeback + '%'"></td>
+              <td class="px-4 py-3 mono text-xs text-slate-400" x-text="g.turnaround + ' ' + t('days','يوم')"></td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-[11px] text-slate-600 mt-3" x-text="t('Data Origin: Derived — computed from closed tickets, case-mix adjusted. Every page in the real system declares where its numbers came from.','مصدر البيانات: مشتق — محسوب من التذاكر المغلقة مع تعديل حسب نوع الحالات. كل صفحة في النظام الحقيقي تُصرّح بمصدر أرقامها.')"></p>
+  </section>
+
+  <!-- Governance -->
+  <section id="governance" class="max-w-7xl mx-auto px-5 py-10">
+    <div class="glass rounded-3xl p-6 md:p-8">
+      <h2 class="text-2xl font-extrabold" x-text="t('④ Every field declares itself','④ كل حقل يُعرّف نفسه')"></h2>
+      <p class="text-slate-400 text-sm mt-2 max-w-3xl" x-text="t('No field exists without a consumer, and no number appears without saying where it came from. This governance rule constrains how features are allowed to be built.','لا يوجد حقل بلا مستهلك، ولا يظهر رقم دون بيان مصدره. هذه القاعدة تحكم كيفية بناء الميزات.')"></p>
+      <div class="grid md:grid-cols-3 gap-4 mt-6">
+        <div class="rounded-2xl border border-sky-400/25 bg-sky-500/5 p-5">
+          <div class="mono text-xs text-sky-300 font-bold">FACT</div>
+          <p class="text-sm text-slate-300 mt-2" x-text="t('Recorded directly — the odometer the driver captured at pickup.','مسجّل مباشرة — قراءة العداد التي أخذها السائق عند الاستلام.')"></p>
+        </div>
+        <div class="rounded-2xl border border-indigo-400/25 bg-indigo-500/5 p-5">
+          <div class="mono text-xs text-indigo-300 font-bold">JUDGEMENT</div>
+          <p class="text-sm text-slate-300 mt-2" x-text="t('A human decided it — the inspector’s diagnosis of the fault.','قرار بشري — تشخيص الفاحص للعطل.')"></p>
+        </div>
+        <div class="rounded-2xl border border-fuchsia-400/25 bg-fuchsia-500/5 p-5">
+          <div class="mono text-xs text-fuchsia-300 font-bold">DERIVED</div>
+          <p class="text-sm text-slate-300 mt-2" x-text="t('Computed from the above — the garage comeback rate.','محسوب مما سبق — نسبة تكرار الأعطال لدى الورشة.')"></p>
+        </div>
+      </div>
+      <div class="mt-6 rounded-2xl border border-white/10 bg-white/[.02] p-5">
+        <p class="text-sm text-slate-300" x-text="t('When an internal audit measured the predictive layer at only 1.08× lift, those pages were retired rather than shipped. Building something honest about its own limits is harder than building something that looks clever.','عندما قاس تدقيق داخلي طبقة التنبؤ عند 1.08× فقط، تم سحب تلك الصفحات بدل إطلاقها. بناء نظام صادق بشأن حدوده أصعب من بناء نظام يبدو ذكياً.')"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scale -->
+  <section class="max-w-7xl mx-auto px-5 py-10">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+      <template x-for="s in scaleStats" :key="s[0]">
+        <div class="glass rounded-2xl px-4 py-5">
+          <div class="text-2xl font-extrabold grad-text" x-text="s[0]"></div>
+          <div class="text-[11px] text-slate-500 mt-1" x-text="s[1]"></div>
+        </div>
+      </template>
+    </div>
+  </section>
+
+  <footer class="border-t border-white/10 py-8 text-center text-slate-500 text-sm">
+    <span x-text="t('FleetView — interactive demo built by Rami Almasri. Synthetic data; the production system is private.','FleetView — عرض تفاعلي من إعداد رامي المصري. بيانات وهمية؛ النظام الحقيقي خاص.')"></span>
+  </footer>
+
+  <!-- toast -->
+  <div x-show="toast" x-cloak x-transition
+       class="fixed bottom-6 inset-x-4 md:inset-x-auto md:end-6 md:w-[430px] z-50">
+    <div class="rounded-2xl p-4 shadow-2xl border"
+         :class="toast && toast.ok ? 'bg-emerald-950/95 border-emerald-400/40' : 'bg-rose-950/95 border-rose-400/40'">
+      <div class="mono text-xs font-bold" :class="toast && toast.ok ? 'text-emerald-300' : 'text-rose-300'" x-text="toast ? toast.title : ''"></div>
+      <div class="text-sm text-slate-300 mt-1" x-text="toast ? toast.body : ''"></div>
+    </div>
+  </div>
+
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script>
+    function fleetview() {
+      /* The real workflow_status values, in order. `rentable` marks the
+         "fenced" states: the ticket is open, but the car is free to rent. */
+      var STATES = [
+        { key:'pending_review',         en:'Controller review',   ar:'مراجعة المراقب',       rentable:true,  why_en:'nobody has touched the car yet',   why_ar:'لم يمسّ أحد السيارة بعد' },
+        { key:'inspection_diagnostic',  en:'Inspector diagnoses', ar:'تشخيص الفاحص',         rentable:true,  why_en:'inspecting is not repairing',      why_ar:'الفحص ليس إصلاحاً' },
+        { key:'inspection_pending',     en:'Ticket born',         ar:'إنشاء التذكرة',         rentable:true,  why_en:'awaiting a dispatch decision',     why_ar:'بانتظار قرار الإرسال' },
+        { key:'awaiting_dispatch',      en:'Garage assigned',     ar:'تعيين الورشة',          rentable:false, why_en:'committed to a garage',            why_ar:'تم الالتزام بورشة' },
+        { key:'in_transit',             en:'Driver moving car',   ar:'السائق ينقل السيارة',   rentable:false, why_en:'physically in transit',            why_ar:'في الطريق فعلياً' },
+        { key:'under_repair',           en:'At the garage',       ar:'في الورشة',             rentable:false, why_en:'the garage has it',                why_ar:'السيارة لدى الورشة' },
+        { key:'ready_for_reinspection', en:'Re-inspection',       ar:'إعادة الفحص',           rentable:false, why_en:'not signed off yet',               why_ar:'لم تُعتمد بعد' },
+        { key:'awaiting_invoice',       en:'Chasing the invoice', ar:'متابعة الفاتورة',       rentable:true,  why_en:'repair is done; paperwork is not', why_ar:'انتهى الإصلاح لا الأوراق' },
+        { key:'closed',                 en:'Closed',              ar:'مغلقة',                 rentable:true,  why_en:'done',                             why_ar:'منتهية' }
+      ];
+
+      var SEED = [
+        { id:1, plate:'A 41287', model:'Nissan Sunny 2023',       faultEn:'Brake noise reported by customer', faultAr:'صوت في الفرامل أبلغ عنه العميل', status:'under_repair',          garage:'Al Quoz Auto Works' },
+        { id:2, plate:'F 90514', model:'Toyota Yaris 2022',       faultEn:'AC not cooling',                   faultAr:'المكيف لا يبرّد',                 status:'inspection_diagnostic', garage:null },
+        { id:3, plate:'K 33820', model:'Mitsubishi Attrage 2024', faultEn:'Oil change overdue',               faultAr:'تغيير الزيت متأخر',              status:'awaiting_invoice',      garage:'Nad Al Hamar Garage' },
+        { id:4, plate:'B 17465', model:'Kia Pegas 2023',          faultEn:'Front tyre worn',                  faultAr:'إطار أمامي مهترئ',               status:'pending_review',        garage:null },
+        { id:5, plate:'M 58903', model:'Hyundai Accent 2022',     faultEn:'Dashboard warning light',          faultAr:'مؤشر تحذير في لوحة القيادة',     status:'awaiting_dispatch',     garage:'Al Aweer Service Center' }
+      ];
+
+      var ACTORS = ['abu.maroof (inspector)','lin (controller)','marwa (controller)','supervisor','driver.07'];
+
+      return {
+        lang: 'en',
+        sortBy: 'fixRate',
+        toast: null,
+        states: STATES,
+        tickets: [],
+        closedCount: 0,
+        garages: [
+          { name:'Al Quoz Auto Works',     jobs:184, fixRate:78, comeback:19, turnaround:2.1 },
+          { name:'Nad Al Hamar Garage',    jobs:141, fixRate:66, comeback:31, turnaround:2.8 },
+          { name:'Al Aweer Service Center',jobs:97,  fixRate:59, comeback:40, turnaround:2.7 },
+          { name:'Rashidiya Motors',       jobs:73,  fixRate:51, comeback:47, turnaround:3.9 },
+          { name:'Sharjah Industrial Auto',jobs:38,  fixRate:44, comeback:52, turnaround:4.6 }
+        ],
+
+        init: function () { this.reset(); },
+
+        t: function (en, ar) { return this.lang === 'en' ? en : ar; },
+
+        toggleLang: function () {
+          this.lang = this.lang === 'en' ? 'ar' : 'en';
+          document.documentElement.lang = this.lang;
+          document.documentElement.dir  = this.lang === 'ar' ? 'rtl' : 'ltr';
+        },
+
+        get rentableStates() { return this.states.filter(function (s) { return s.rentable && s.key !== 'closed'; }); },
+        get blockedStates()  { return this.states.filter(function (s) { return !s.rentable; }); },
+        get scaleStats() {
+          return [
+            ['134', this.t('database tables','جدول قاعدة بيانات')],
+            ['493', this.t('API endpoints','نقطة API')],
+            ['198', this.t('service classes','صنف خدمة')],
+            ['104', this.t('React pages','صفحة React')]
+          ];
+        },
+
+        reset: function () {
+          var self = this;
+          this.closedCount = 0;
+          this.toast = null;
+          this.tickets = SEED.map(function (s) {
+            return {
+              id: s.id, plate: s.plate, model: s.model,
+              faultEn: s.faultEn, faultAr: s.faultAr,
+              status: s.status, garage: s.garage,
+              paused: false, pausedFrom: null,
+              history: [{ at: self.stamp(-3), status: s.status, by: ACTORS[s.id % ACTORS.length] }]
+            };
+          });
+        },
+
+        stamp: function (offsetDays) {
+          var d = new Date(Date.now() + (offsetDays || 0) * 864e5);
+          return d.toISOString().slice(0, 16).replace('T', ' ');
+        },
+
+        idx: function (key) {
+          for (var i = 0; i < STATES.length; i++) { if (STATES[i].key === key) return i; }
+          return -1;
+        },
+        stateOf: function (tk) { return tk.paused ? { rentable: true } : STATES[this.idx(tk.status)]; },
+        canPause: function (tk) { return !tk.paused && ['awaiting_dispatch','in_transit','under_repair'].indexOf(tk.status) !== -1; },
+        countAt: function (key) {
+          return this.tickets.filter(function (t) { return !t.paused && t.status === key; }).length;
+        },
+
+        get inShopCount()   { var s = this; return this.tickets.filter(function (t) { return !s.stateOf(t).rentable; }).length; },
+        get rentableCount() { var s = this; return this.tickets.filter(function (t) { return  s.stateOf(t).rentable; }).length; },
+
+        get sortedGarages() {
+          var c = this.sortBy;
+          return this.garages.slice().sort(function (a, b) {
+            return c === 'fixRate' ? b.fixRate - a.fixRate : a[c] - b[c];
+          });
+        },
+        colLabel: function (c) {
+          return c === 'fixRate'  ? this.t('Fix rate','نسبة الإصلاح')
+               : c === 'comeback' ? this.t('Comeback','نسبة التكرار')
+               :                    this.t('Turnaround','مدة الإنجاز');
+        },
+
+        note: function (ok, title, body) {
+          this.toast = { ok: ok, title: title, body: body };
+          clearTimeout(this._tm);
+          var self = this;
+          this._tm = setTimeout(function () { self.toast = null; }, 4600);
+        },
+
+        advance: function (tk) {
+          if (tk.paused) {
+            return this.note(false, '422 WorkflowTransitionException',
+              this.t('This ticket is paused — the car is out with a customer. Resume it before advancing.',
+                     'هذه التذكرة موقوفة — السيارة مع عميل. استأنفها قبل التقديم.'));
+          }
+          var next = STATES[this.idx(tk.status) + 1];
+          if (!next) return;
+          tk.status = next.key;
+          tk.history.push({ at: this.stamp(0), status: next.key, by: ACTORS[Math.floor(Math.random() * ACTORS.length)] });
+
+          if (next.key === 'closed') {
+            this.closedCount++;
+            var id = tk.id;
+            this.tickets = this.tickets.filter(function (t) { return t.id !== id; });
+            return this.note(true, '200 OK · ticket closed',
+              this.t(tk.plate + ' is closed. Every transition was stamped with who and when.',
+                     tk.plate + ' أُغلقت. كل انتقال مختوم بمن قام به ومتى.'));
+          }
+          this.note(true, '200 OK · ' + next.key,
+            this.t(tk.plate + ' → ' + next.en + '. The next role has been notified automatically.',
+                   tk.plate + ' → ' + next.ar + '. تم إشعار الدور التالي تلقائياً.'));
+        },
+
+        skip: function (tk) {
+          this.note(false, '422 WorkflowTransitionException',
+            this.t('Cannot move ' + tk.plate + ' from "' + tk.status + '" to "closed". Transitions are guarded server-side and must run in sequence — a missing re-inspection or unpaid invoice cannot be skipped.',
+                   'لا يمكن نقل ' + tk.plate + ' من "' + tk.status + '" إلى "closed". الانتقالات محميّة على الخادم ويجب أن تتم بالتسلسل.'));
+        },
+
+        pause: function (tk) {
+          tk.paused = true;
+          tk.pausedFrom = tk.status;
+          tk.history.push({ at: this.stamp(0), status: 'paused_returned_to_service', by: 'supervisor' });
+          this.note(true, 'paused_returned_to_service',
+            this.t(tk.plate + ' released to the customer. Notes, parts, photos and history are preserved — and the stage it held is remembered.',
+                   tk.plate + ' أُعيدت للعميل. الملاحظات والقطع والصور والسجل محفوظة — والمرحلة محفوظة أيضاً.'));
+        },
+
+        resume: function (tk) {
+          var from = tk.pausedFrom;
+          tk.paused = false;
+          tk.pausedFrom = null;
+          tk.status = from;
+          tk.history.push({ at: this.stamp(0), status: from + ' (resumed)', by: 'supervisor' });
+          this.note(true, '200 OK · resumed',
+            this.t(tk.plate + ' is back at exactly "' + from + '" — nothing was lost.',
+                   tk.plate + ' عادت تماماً إلى "' + from + '" — لم يُفقد شيء.'));
+        }
+      };
+    }
+  </script>
+</body>
+</html>
