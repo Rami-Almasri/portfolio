@@ -11,7 +11,7 @@ const PROJECTS = [
   {
     name: 'FleetView',
     repo: 'Fleet_maintenance',
-    demo: 'demos/fleetview/index.html',
+    demo: 'demos/fleetview/',
     private: true,
     caseStudy: 'fleetview',
     sub: 'Fleet Operations Platform · Faster Cars (UAE)',
