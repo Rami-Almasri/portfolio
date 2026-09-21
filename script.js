@@ -9,6 +9,20 @@
    deployed URL here and it instantly becomes a "Live Demo ↗" button. */
 const PROJECTS = [
   {
+    name: 'FleetView',
+    repo: 'Fleet_maintenance',
+    demo: null,
+    private: true,
+    caseStudy: 'fleetview',
+    sub: 'Fleet Operations Platform · Faster Cars (UAE)',
+    badge: 'Production · Enterprise',
+    featured: true,
+    filters: ['enterprise', 'react', 'laravel'],
+    desc: 'The in-house fleet operations platform for Faster Cars, a car-rental company in the UAE running several hundred vehicles. It owns the operational reality of every car — what is wrong with it, which garage is fixing it, what that cost, and whether it is fit to rent — sitting between the rental system (OfficeManager) and accounting (Odoo).',
+    note: 'It replaced a WhatsApp group with a guarded server-side state machine. Every transition is validated, stamps who and when, and auto-notifies the next role; an out-of-sequence move throws and maps to HTTP 422. The load-bearing subtlety is that several states keep the ticket open while the car stays rentable — because rental revenue outranks repairs, and a job already under way can be paused and resumed at exactly the stage it held.',
+    tags: ['Laravel 12', 'React 19', 'Workflow State Machine', '134 Tables', '493 Endpoints', 'Sanctum + RBAC', 'Docker', 'Odoo · Sheets · REST Sync'],
+  },
+  {
     name: 'Aqar Syria',
     repo: 'Real-Estate',
     demo: 'demos/aqar/index.html',
@@ -97,6 +111,84 @@ const STACK = [
 
 /* ---------- Case study content (Aqar Syria) ---------- */
 const CASE_STUDIES = {
+  fleetview: `
+    <span class="cs-tag">Case Study · Production System</span>
+    <h2 class="cs-title">FleetView <span class="grad">— Fleet Operations Platform</span></h2>
+    <p class="cs-lead">The in-house platform that runs vehicle maintenance for <strong>Faster Cars</strong>, a car-rental company in the UAE. It replaced a WhatsApp group with a guarded state machine — and now owns the operational life of a fleet of several hundred vehicles.</p>
+
+    <div class="cs-section">
+      <h3>① The Problem</h3>
+      <p>Repairs were coordinated by message. The inspector, the drivers, the controllers and the external garages relayed status to each other in chat, so every state lived in someone's head or scrolled out of history. Nobody could answer the questions that actually cost money: <em>where is this car right now, who touched it last, what did that repair cost, and is this garage fixing things the first time?</em></p>
+    </div>
+
+    <div class="cs-section">
+      <h3>② Where It Sits</h3>
+      <p>FleetView is deliberately <strong>not</strong> a booking system and <strong>not</strong> an accounting system. It sits between two external systems that each own a different truth, and owns the middle: the vehicle's operational and maintenance reality.</p>
+      <div class="cs-pills">
+        <span>OfficeManager → contracts</span><span>FleetView → the vehicle</span><span>Odoo → the ledger</span>
+      </div>
+      <p class="cs-fine">A large part of the codebase exists to reconcile systems that disagree — and to stay honest about which one is authoritative for each fact.</p>
+    </div>
+
+    <div class="cs-section">
+      <h3>③ The Heart: a Guarded Workflow</h3>
+      <p>A maintenance ticket is a row whose life is a state machine in <code>MaintenanceWorkflowService</code>. Every transition is <strong>guarded</strong>: an out-of-sequence move, or a handoff missing required data, throws <em>WorkflowTransitionException</em> and the API maps it to HTTP 422. Each transition stamps <strong>who</strong> and <strong>when</strong>, and fires an alert to the next role automatically — the audit trail is generated, never typed.</p>
+      <pre class="cs-code"><code>pending_review          controller reviews the request
+inspection_*            inspector diagnoses   (no ticket yet)
+inspection_pending      ★ the ticket is born
+awaiting_dispatch       supervisor picks garage + driver
+in_transit              driver captures odometer on pickup
+under_repair            external garage works the job
+ready_for_reinspection  pass → ready_for_pickup
+in_our_park             rentable again
+closed</code></pre>
+    </div>
+
+    <div class="cs-section">
+      <h3>④ The Rule That Shapes Everything</h3>
+      <p><strong>Rental is king.</strong> A car earning money outranks a car being fixed, and that single business rule drives the hardest design decisions in the system:</p>
+      <ul class="cs-list">
+        <li><strong>Fenced states:</strong> several statuses keep the ticket open while the car stays <em>free to rent</em> — the pre-ticket inspection states, the on-site lane, and invoice chasing. Merely inspecting a car must never make it look unavailable.</li>
+        <li><strong>Pause &amp; resume:</strong> a repair already under way can be interrupted to release the car to a customer. All progress, notes, parts, photos and history are preserved, the held stage is remembered, and Resume puts it back at exactly that stage — both directions capturing a full custody handover.</li>
+        <li><strong>A failed re-inspection returns to a human,</strong> not to the same garage. It lands in the supervisor's queue, visibly flagged as returned in a bad state, so a person decides whether to re-send it.</li>
+        <li><strong>The mobile lane:</strong> a battery, a bulb or a tyre is fixed where the car is parked — a committed ticket with no dispatch and no garage, closed by a single action.</li>
+      </ul>
+    </div>
+
+    <div class="cs-section">
+      <h3>⑤ Scale</h3>
+      <div class="cs-er">
+        <div class="er-node">134 <small>database tables</small></div>
+        <div class="er-node">493 <small>API endpoints</small></div>
+        <div class="er-node">198 <small>service classes</small></div>
+        <div class="er-node">110 <small>Eloquent models</small></div>
+        <div class="er-node">104 <small>React pages</small></div>
+        <div class="er-node">96 <small>Artisan commands</small></div>
+      </div>
+      <p class="cs-fine">PHP 8.2 · Laravel 12 · Sanctum · spatie/laravel-permission · MySQL 8 · React 19 · React Router 7 · Tailwind 3 · Docker · bilingual EN/AR.</p>
+    </div>
+
+    <div class="cs-section">
+      <h3>⑥ Integrations &amp; Intelligence</h3>
+      <ul class="cs-list">
+        <li><strong>OfficeManager sync</strong> over REST, with <em>two deliberate timeout profiles</em> — a short interactive one for live requests where a user is waiting, and a long batch profile with spaced retries for sync commands, because the upstream server is fragile under load.</li>
+        <li><strong>Google Sheets</strong> import for the legacy maintenance log and the fleet register, plus one write-back export; <strong>Odoo 18</strong> over JSON-RPC for the expense ledger.</li>
+        <li><strong>Identity discipline:</strong> vehicles resolve through a dedicated <code>PlateResolver</code> — never by plate, because plates get reassigned. Contract ↔ maintenance linking is a strict vehicle + date-window match; no match reports "No Log" rather than guessing.</li>
+        <li><strong>Garage scorecard</strong> — case-mix-adjusted vendor performance: fix rates, comeback rates, median and p90 turnaround.</li>
+      </ul>
+    </div>
+
+    <div class="cs-section">
+      <h3>⑦ Engineering Judgement</h3>
+      <p>The part I am most willing to be judged on is what the system refuses to claim. Every intelligence field must declare itself <strong>Fact, Judgement, or Derived</strong>; every page must show its <strong>Data Origin</strong>; machine-generated explanations are emitted as reason codes and translated at the edge, never as baked-in English strings.</p>
+      <p>When an internal audit measured the predictive layer at only <strong>1.08× lift</strong> — not enough to earn the confidence the UI was prepared to display — those pages were <strong>retired rather than shipped</strong>. The handbook states the known failures in writing, including its own reliability order: <em>running code &gt; service docblocks &gt; the handbook &gt; the design archive.</em> Building something honest about its own limits is harder than building something that looks clever.</p>
+    </div>
+
+    <div class="cs-cta">
+      <span class="cs-private">🔒 Private client system — source is not public. Walkthrough available on request.</span>
+    </div>
+  `,
+
   aqar: `
     <span class="cs-tag">Case Study · Flagship</span>
     <h2 class="cs-title">Aqar Syria <span class="grad">— Smart Real-Estate SaaS</span></h2>
@@ -161,13 +253,19 @@ const SETUP = {
 
 /* ---------- Render projects ---------- */
 function projectActions(p) {
+  /* Private client systems have no public repo and no self-serve clone path,
+     so they show a lock badge instead of a Source / Preview button. */
   const demo = p.demo
     ? `<a href="${p.demo}" target="_blank" rel="noopener" class="proj-btn primary">Live Demo ↗</a>`
-    : `<button type="button" class="proj-btn pending" data-preview="${p.repo}">Preview ▷</button>`;
+    : p.private
+      ? ''
+      : `<button type="button" class="proj-btn pending" data-preview="${p.repo}">Preview ▷</button>`;
   const cs = p.caseStudy
     ? `<a href="#" class="proj-btn case" data-case="${p.caseStudy}">Case study →</a>`
     : '';
-  const src = `<a href="https://github.com/Rami-Almasri/${p.repo}" target="_blank" rel="noopener" class="proj-btn ghost">Source ↗</a>`;
+  const src = p.private
+    ? `<span class="proj-btn private" title="Proprietary client system — source is not public">Private · client system</span>`
+    : `<a href="https://github.com/Rami-Almasri/${p.repo}" target="_blank" rel="noopener" class="proj-btn ghost">Source ↗</a>`;
   return demo + cs + src;
 }
 

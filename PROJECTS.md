@@ -11,7 +11,27 @@ that makes it non-trivial engineering (the "note" a hiring lead actually cares a
 
 ---
 
-## 1. Aqar Syria — Smart Real-Estate SaaS  ⭐ Flagship
+## 1. FleetView — Fleet Operations Platform  ⭐ Production
+**Repo:** `Fleet_maintenance` — **private (proprietary client system)**
+**Live Demo:** _Not public — walkthrough on request._
+**Stack:** PHP 8.2 · Laravel 12 · Sanctum · spatie/laravel-permission · MySQL 8 · React 19 · React Router 7 · Tailwind 3 · Docker · Google Sheets API · Odoo 18 JSON-RPC
+
+The in-house fleet operations platform for **Faster Cars**, a car-rental company in the UAE running several
+hundred vehicles. It owns the operational life of every car — the fault, the garage, the cost, the custody
+handovers, and whether the car is fit to rent — sitting between OfficeManager (contracts) and Odoo (the ledger).
+It replaced a WhatsApp group.
+
+- **Guarded workflow state machine:** every maintenance transition is validated, stamps who and when, and auto-notifies the next role. Out-of-sequence moves throw `WorkflowTransitionException` → HTTP 422.
+- **Rental-is-king semantics:** "fenced" states keep a ticket open while the car stays rentable; an in-progress repair can be *paused* to release the car and *resumed* at exactly the stage it held, with full custody handover both ways.
+- **Integration reconciliation:** OfficeManager REST sync with two deliberate timeout profiles (interactive vs. batch), Google Sheets import/export, Odoo JSON-RPC expense ledger.
+- **Garage scorecard:** case-mix-adjusted vendor performance — fix rates, comeback rates, median and p90 turnaround.
+- **Scale:** 134 tables · 493 API endpoints · 198 services · 110 models · 104 React pages · 96 Artisan commands.
+
+> **Note:** The engineering judgement worth pointing at is what it refuses to claim. Every intelligence field declares itself Fact / Judgement / Derived, every page shows its Data Origin, and when an audit measured the predictive layer at only **1.08× lift**, those pages were retired rather than shipped.
+
+---
+
+## 2. Aqar Syria — Smart Real-Estate SaaS  ⭐ Flagship
 **Repo:** [Real-Estate](https://github.com/Rami-Almasri/Real-Estate)
 **Live Demo:** _On request — deploy-ready (Laravel + Blade)._
 **Stack:** Laravel 12 · Blade · Alpine.js · GSAP/AOS · Chart.js · Leaflet · dompdf (ar-php) · Sanctum · SQLite→MySQL
@@ -26,7 +46,7 @@ Subscription SaaS that turns paper-based brokerages into data-driven platforms.
 
 ---
 
-## 2. Alboraq — Samsung Retail E-commerce (Arabic RTL)
+## 3. Alboraq — Samsung Retail E-commerce (Arabic RTL)
 **Repo:** [alboraq](https://github.com/Rami-Almasri/alboraq)
 **Live Demo:** _On request — deploy-ready (Laravel API + React)._
 **Stack:** Laravel 12 · React 19 · Vite · Tailwind · Framer Motion · Spatie Permission · Spatie Media Library · Sanctum
@@ -40,7 +60,7 @@ Full e-commerce platform for البراق للاتصالات, an authorized Sams
 
 ---
 
-## 3. Dr.pets — Pet-care Marketplace
+## 4. Dr.pets — Pet-care Marketplace
 **Repo:** [Dr.pets](https://github.com/Rami-Almasri/Dr.pets)
 **Live Demo:** _On request — deploy-ready (Laravel API + React)._
 **Stack:** Laravel 11 · React 18 · Vite · Tailwind · Framer Motion · React Router · Stripe · Sanctum
@@ -53,7 +73,7 @@ All-in-one pet-care platform: shop supplies, book vets/groomers, community.
 
 ---
 
-## 4. Petit Monde — Children's Fashion Store
+## 5. Petit Monde — Children's Fashion Store
 **Repo:** [fashion-ecommerce-laravel-react](https://github.com/Rami-Almasri/fashion-ecommerce-laravel-react)
 **Live Demo:** _On request — deploy-ready (Laravel API + React)._
 **Stack:** Laravel 12 · React 18 · Vite · Tailwind · Framer Motion · Spatie Permission · Axios
@@ -67,7 +87,7 @@ Children's-fashion storefront with a seeded, realistic catalog (4 categories, 16
 
 ---
 
-## 5. Soaply — Artisan Soap E-commerce
+## 6. Soaply — Artisan Soap E-commerce
 **Repo:** [Soap_sabikat_alsham](https://github.com/Rami-Almasri/Soap_sabikat_alsham)
 **Live Demo:** _On request — deploy-ready (Laravel API + React)._
 **Stack:** Laravel 11 (API) · React · MySQL · Sanctum · Context API · Axios · Tailwind
@@ -78,7 +98,7 @@ Mobile-first storefront for handmade soap with real-time search/filter and a Con
 
 ---
 
-## 6. Todo Fullstack — Fundamentals, done right
+## 7. Todo Fullstack — Fundamentals, done right
 **Repo:** [Todo_fullstack](https://github.com/Rami-Almasri/Todo_fullstack)
 **Live Demo:** _On request — deploy-ready (Laravel API + React)._
 **Stack:** Laravel · React · Material UI · REST · MySQL · Axios
